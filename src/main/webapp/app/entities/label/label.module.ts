@@ -4,15 +4,14 @@ import { RouterModule } from '@angular/router';
 import { JhipsterSampleApplicationSharedModule } from '../../shared';
 import {
     LabelService,
-    LabelPopupService,
     LabelComponent,
     LabelDetailComponent,
     LabelDialogComponent,
-    LabelPopupComponent,
     LabelDeletePopupComponent,
     LabelDeleteDialogComponent,
     labelRoute,
     labelPopupRoute,
+    LabelResolve,
 } from './';
 
 const ENTITY_STATES = [
@@ -30,19 +29,17 @@ const ENTITY_STATES = [
         LabelDetailComponent,
         LabelDialogComponent,
         LabelDeleteDialogComponent,
-        LabelPopupComponent,
         LabelDeletePopupComponent,
     ],
     entryComponents: [
         LabelComponent,
         LabelDialogComponent,
-        LabelPopupComponent,
         LabelDeleteDialogComponent,
         LabelDeletePopupComponent,
     ],
     providers: [
         LabelService,
-        LabelPopupService,
+        LabelResolve
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

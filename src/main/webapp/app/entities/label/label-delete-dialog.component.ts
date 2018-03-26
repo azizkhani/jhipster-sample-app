@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiEventManager } from 'ng-jhipster';
 
 import { Label } from './label.model';
-import { LabelPopupService } from './label-popup.service';
 import { LabelService } from './label.service';
 
 @Component({
@@ -42,23 +41,31 @@ export class LabelDeleteDialogComponent {
     selector: 'jhi-label-delete-popup',
     template: ''
 })
-export class LabelDeletePopupComponent implements OnInit, OnDestroy {
+export class LabelDeletePopupComponent implements OnInit {
 
-    routeSub: any;
+    private ngbModalRef: NgbModalRef;
 
     constructor(
         private route: ActivatedRoute,
-        private labelPopupService: LabelPopupService
-    ) {}
+        private router: Router,
+        private modalService: NgbModal
+    ) {
+    }
 
     ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.labelPopupService
-                .open(LabelDeleteDialogComponent as Component, params['id']);
+        this.route.data.subscribe(({label}) => {
+            setTimeout(() => {
+                this.ngbModalRef = this.modalService.open(LabelDeleteDialogComponent as Component, { size: 'lg', backdrop: 'static'});
+                this.ngbModalRef.componentInstance.label = label.body;
+                this.ngbModalRef.result.then((result) => {
+                    this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true, queryParamsHandling: 'merge' });
+                    this.ngbModalRef = null;
+                }, (reason) => {
+                    this.router.navigate([{ outlets: { popup: null }}], { replaceUrl: true, queryParamsHandling: 'merge' });
+                    this.ngbModalRef = null;
+                });
+            }, 0);
         });
     }
 
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
-    }
 }

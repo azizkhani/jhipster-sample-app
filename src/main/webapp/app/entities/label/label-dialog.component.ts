@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
@@ -7,7 +7,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
 
 import { Label } from './label.model';
-import { LabelPopupService } from './label-popup.service';
 import { LabelService } from './label.service';
 import { Operation, OperationService } from '../operation';
 
@@ -23,22 +22,22 @@ export class LabelDialogComponent implements OnInit {
     operations: Operation[];
 
     constructor(
-        public activeModal: NgbActiveModal,
         private jhiAlertService: JhiAlertService,
         private labelService: LabelService,
         private operationService: OperationService,
-        private eventManager: JhiEventManager
+        private eventManager: JhiEventManager,
+        private activatedRoute: ActivatedRoute,
+        private router: Router
     ) {
     }
 
     ngOnInit() {
         this.isSaving = false;
+        this.activatedRoute.data.subscribe(({label}) => {
+            this.label = label.body ? label.body : label;
+        });
         this.operationService.query()
             .subscribe((res: HttpResponse<Operation[]>) => { this.operations = res.body; }, (res: HttpErrorResponse) => this.onError(res.message));
-    }
-
-    clear() {
-        this.activeModal.dismiss('cancel');
     }
 
     save() {
@@ -51,16 +50,18 @@ export class LabelDialogComponent implements OnInit {
                 this.labelService.create(this.label));
         }
     }
-
     private subscribeToSaveResponse(result: Observable<HttpResponse<Label>>) {
         result.subscribe((res: HttpResponse<Label>) =>
             this.onSaveSuccess(res.body), (res: HttpErrorResponse) => this.onSaveError());
     }
 
     private onSaveSuccess(result: Label) {
-        this.eventManager.broadcast({ name: 'labelListModification', content: 'OK'});
         this.isSaving = false;
-        this.activeModal.dismiss(result);
+        this.previousState();
+    }
+
+    previousState() {
+        window.history.back();
     }
 
     private onSaveError() {
@@ -84,35 +85,5 @@ export class LabelDialogComponent implements OnInit {
             }
         }
         return option;
-    }
-}
-
-@Component({
-    selector: 'jhi-label-popup',
-    template: ''
-})
-export class LabelPopupComponent implements OnInit, OnDestroy {
-
-    routeSub: any;
-
-    constructor(
-        private route: ActivatedRoute,
-        private labelPopupService: LabelPopupService
-    ) {}
-
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
-                this.labelPopupService
-                    .open(LabelDialogComponent as Component, params['id']);
-            } else {
-                this.labelPopupService
-                    .open(LabelDialogComponent as Component);
-            }
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
     }
 }
