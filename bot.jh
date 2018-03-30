@@ -1,0 +1,111 @@
+
+entity Bot {
+	name String required,
+    slug String required,
+    tagline String,
+    description String,
+    url String required,
+    twitterUrl String,
+    facebookUrl String,
+    producthuntUrl String,
+    imageCode ImageBlob required,
+    likeCount Long required,
+    rateCount Long required,
+    viewCount Long required,
+    rate Float required,
+    featured Boolean required,
+    featuredDate LocalDate,
+    featuredImageCode ImageBlob,
+    featuredOrder Long required,
+    enabled Boolean required
+}
+
+entity SocialPlatform {
+	name String required,
+    slug String required,
+    imageCode ImageBlob required,
+    imageHeaderCode ImageBlob,
+    tagline String,
+    description String,
+    url String required,
+    twitterUrl String,
+    facebookUrl String,
+    createBotUrl String,
+    developUrl String,
+    order Long required
+}
+
+entity BotCategory{
+	name String required,
+    slug String required,
+    order Long required
+}
+
+entity BotMaker {
+    imageHeaderCode ImageBlob,
+    tagline String required,
+    description String,
+    websiteUrl String,
+    twitterUrl String,
+    facebookUrl String,
+    linkedinUrl String,
+    mediumUrl String,
+    productHuntUrl String,
+    angelListUrl String,
+    order Long required
+}
+
+entity BotComment {
+    description String required,
+    commentDate String,
+    rate Float required,
+    approved Boolean  required
+}
+
+entity Slider {
+    name String required,
+    url String required,
+    imageCode ImageBlob required,
+    description String,
+    order Long required,
+    current Boolean required
+}
+
+entity BotCollection {
+    name String required,
+    slug String required,
+    imageCode ImageBlob required,
+    tagline String,
+    description String,
+    order Long required,
+    featured Boolean required
+}
+
+relationship ManyToMany {
+  Bot{socialPlatforms} to SocialPlatform ,
+  Bot{images} to String ,
+  Bot{categories} to BotCategory ,
+  Bot{botMakers} to BotMaker,
+  BotCollection{botList} to Bot,
+  BotMaker{skills} to BaseInformation,
+  BotMaker{socialPlatforms} to SocialPlatform,
+  BotMaker{bots} to Bot
+}
+
+relationship ManyToOne {
+  Bot{botComments} to BotComment,
+  BotComment{botMaker} to BotMaker,
+  BotComment{bot} to Bot,
+  BotCollection{botMaker} to BotMaker,
+  BotMaker{user} to User
+}
+
+relationship OneToMany {
+  Bot{botComments} to BotComment,
+  BotMaker{user} to User
+}
+
+
+// Set pagination options
+paginate SocialPlatform, BotCategory with infinite-scroll
+paginate Bot, BotMaker, BotCollection, BotComment, Slider with pagination
